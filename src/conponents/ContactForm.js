@@ -1,4 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
+import * as actions from '../redux/actions';
+
 class ContactForm extends React.Component {
   state = {
     name: '',
@@ -12,8 +16,17 @@ class ContactForm extends React.Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.props.onSubmit(this.state);
-    this.setState({ name: '', number: '' });
+    const contact = {
+      id: uuidv4(),
+      name: this.state.name,
+      number: this.state.number,
+    };
+    if (this.props.items.find(item => item.name === this.state.name)) {
+      alert(this.state.name + ' is already in contacts');
+    } else {
+      this.props.onSubmit(contact);
+      this.setState({ name: '', number: '' });
+    }
   };
 
   render() {
@@ -49,4 +62,12 @@ class ContactForm extends React.Component {
     );
   }
 }
-export default ContactForm;
+const mapStateToProps = state => ({
+  items: state.contacts.items,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onSubmit: item => dispatch(actions.addContact(item)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
