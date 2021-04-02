@@ -1,41 +1,71 @@
-import { createStore } from 'redux';
+import { combineReducers } from 'redux';
+import {
+  createReducer,
+  configureStore,
+  getDefaultMiddleware,
+} from '@reduxjs/toolkit';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { addContact, delContact, filterContact } from './actions';
 
-const initialState = {
-  contacts: {
-    items: [
-      { id: 1, name: 'ffff', number: '1111' },
-      { id: 2, name: 'fffd', number: '2222' },
-    ],
-    filter: 'ffff',
-  },
+const persistConfig = {
+  key: 'root',
+  storage,
 };
-const reducer = (state = initialState, { type, payload }) => {
-  switch (type) {
-    case 'APP/ADD_CONTACT':
-      return {
-        contacts: {
-          ...state.contacts,
-          items: [payload, ...state.contacts.items],
-        },
-      };
+// const initialState = {
+//   contacts: {
+//     items: [
+//       { id: 1, name: 'ffff', number: '1111' },
+//       { id: 2, name: 'fffd', number: '2222' },
+//     ],
+//     filter: 'ff',
+//   },
+// };
 
-    case 'APP/DELETE_CONTACT':
-      return {
-        contacts: {
-          ...state.contacts,
-          items: state.contacts.items.filter(item => item.id !== payload),
-        },
-      };
+// const itemsInitialState = [
+//   { id: 1, name: 'ffff', number: '1111' },
+//   { id: 2, name: 'fffd', number: '2222' },
+// ];
 
-    case 'APP/FILTER_CONTACT':
-      return {
-        contacts: { ...state.contacts, filter: payload },
-      };
+const itemsReduсer = createReducer([], {
+  [addContact]: (state, action) => [action.payload, ...state],
+  [delContact]: (state, action) =>
+    state.filter(item => item.id !== action.payload),
+});
 
-    default:
-      return state;
-  }
-};
-const store = createStore(reducer);
+const filterReduсer = createReducer('', {
+  [filterContact]: (_, action) => action.payload,
+});
 
-export default store;
+const contactsReduсer = combineReducers({
+  items: itemsReduсer,
+  filter: filterReduсer,
+});
+
+const rootReducer = combineReducers({
+  contacts: contactsReduсer,
+});
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const store = configureStore({
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware({
+    serializableCheck: {
+      ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+    },
+  }),
+});
+
+const persistor = persistStore(store);
+
+export default { store, persistor };
