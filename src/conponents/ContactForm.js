@@ -21,7 +21,11 @@ class ContactForm extends React.Component {
       name: this.state.name,
       number: this.state.number,
     };
-    if (this.props.items.find(item => item.name === this.state.name)) {
+    if (
+      this.props.items.find(
+        item => item.name.toUpperCase() === this.state.name.toUpperCase(),
+      )
+    ) {
       alert(this.state.name + ' is already in contacts');
     } else {
       this.props.onSubmit(contact);

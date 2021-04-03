@@ -1,15 +1,9 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import * as actions from '../redux/actions';
 
-const ContactList = ({ filter, contacts, onDelete }) => {
-  const normalizeSearchItem = filter.toLowerCase();
-  const visibleContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(normalizeSearchItem),
-  );
+const ContactList = ({ contacts, onDelete }) => {
   return (
     <ul>
-      {visibleContacts.map(({ id, name, number }) => (
+      {contacts.map(({ id, name, number }) => (
         <li key={id}>
           {name}: {number}
           <button onClick={() => onDelete(id)} style={{ marginLeft: '20px' }}>
@@ -20,14 +14,18 @@ const ContactList = ({ filter, contacts, onDelete }) => {
     </ul>
   );
 };
+export default ContactList;
+// const visibleContacts = (contacts, filter) =>
+//   contacts.filter(contact =>
+//     contact.name.toLowerCase().includes(filter.toLowerCase()),
+//   );
 
-const mapStateToProps = state => ({
-  contacts: state.contacts.items,
-  filter: state.contacts.filter,
-});
+// const mapStateToProps = ({ contacts: { items, filter } }) => ({
+//   contacts: visibleContacts(items, filter),
+// });
 
-const mapDispatchToProps = dispatch => ({
-  onDelete: id => dispatch(actions.delContact(id)),
-});
+// const mapDispatchToProps = dispatch => ({
+//   onDelete: id => dispatch(actions.delContact(id)),
+// });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
+// export default connect(mapStateToProps, mapDispatchToProps)(ContactList);

@@ -1,9 +1,4 @@
-import { combineReducers } from 'redux';
-import {
-  createReducer,
-  configureStore,
-  getDefaultMiddleware,
-} from '@reduxjs/toolkit';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import {
   persistStore,
   persistReducer,
@@ -15,12 +10,8 @@ import {
   REGISTER,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { addContact, delContact, filterContact } from './actions';
+import contactsReduсer from './reducer';
 
-const persistConfig = {
-  key: 'root',
-  storage,
-};
 // const initialState = {
 //   contacts: {
 //     items: [
@@ -31,34 +22,16 @@ const persistConfig = {
 //   },
 // };
 
-// const itemsInitialState = [
-//   { id: 1, name: 'ffff', number: '1111' },
-//   { id: 2, name: 'fffd', number: '2222' },
-// ];
-
-const itemsReduсer = createReducer([], {
-  [addContact]: (state, action) => [action.payload, ...state],
-  [delContact]: (state, action) =>
-    state.filter(item => item.id !== action.payload),
-});
-
-const filterReduсer = createReducer('', {
-  [filterContact]: (_, action) => action.payload,
-});
-
-const contactsReduсer = combineReducers({
-  items: itemsReduсer,
-  filter: filterReduсer,
-});
-
-const rootReducer = combineReducers({
-  contacts: contactsReduсer,
-});
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const itemsPersistConfig = {
+  key: 'items',
+  storage,
+  blacklist: ['filter'],
+};
 
 const store = configureStore({
-  reducer: persistedReducer,
+  reducer: {
+    contacts: persistReducer(itemsPersistConfig, contactsReduсer),
+  },
   middleware: getDefaultMiddleware({
     serializableCheck: {
       ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
