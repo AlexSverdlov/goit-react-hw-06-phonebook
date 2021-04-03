@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import * as actions from '../redux/actions';
-import ContactList from './ContactList';
+import ContactList from './ContactList.view';
 
 const visibleContacts = (contacts, filter) =>
   contacts.filter(contact =>
